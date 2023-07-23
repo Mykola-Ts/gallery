@@ -1,0 +1,44 @@
+@media screen and (max-width: 319px) {
+  .info {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media screen and (max-width: 419px) {
+  .photo-card {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .photo-card {
+    width: calc((100% - var(--gap-gallery) * 2) / 3);
+  }
+
+  .info {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .photo-card {
+    width: calc((100% - var(--gap-gallery) * 2) / 3);
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .photo-card {
+    width: calc((100% - var(--gap-gallery) * 3) / 4);
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .info {
+    flex-wrap: nowrap;
+
+    width: 100%;
+  }
+}
