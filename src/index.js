@@ -5,9 +5,12 @@ import { createMarkupGallery } from './js/create-markup-gallary';
 import { getTopMargin } from './js/create-markup-gallary';
 import { showBackToTopBtn } from './js/scroll-to-top';
 import { scrollToTop } from './js/scroll-to-top';
-import { getInfoMessage, getSuccessMessage } from './js/notify-message';
-import { getFailureMessage } from './js/notify-message';
-import { closeMessageNotify } from './js/notify-message';
+import {
+  getInfoMessage,
+  getSuccessMessage,
+  getFailureMessage,
+  closeMessageNotify,
+} from './js/notify-message';
 
 export const selectors = {
   searchForm: document.querySelector('#search-form'),
@@ -17,6 +20,7 @@ export const selectors = {
   loader: document.querySelector('.loader-wrap'),
   backToTopBtn: document.querySelector('.back-to-top-btn'),
   searchWrap: document.querySelector('.search-wrap'),
+  endGallery: document.querySelector('.end-gallery'),
 };
 export const parametersRequest = {
   searchQuery: '',
@@ -53,6 +57,10 @@ function handlerSearch(evt) {
     selectors.guardGallery.hidden = true;
   }
 
+  if (!selectors.endGallery.classList.contains('visually-hidden')) {
+    selectors.endGallery.classList.add('visually-hidden');
+  }
+
   selectors.gallery.innerHTML = '';
 
   selectors.loader.classList.add('loader-wrap-top');
@@ -61,11 +69,11 @@ function handlerSearch(evt) {
   parametersRequest.searchQuery =
     selectors.searchQueryInput.value.toLowerCase();
 
-    if (!parametersRequest.searchQuery) {
-        selectors.loader.classList.add('visually-hidden');
-        getInfoMessage('Input field is empty. Enter search query!', 'center-right');
-        return;
-      }
+  if (!parametersRequest.searchQuery) {
+    selectors.loader.classList.add('visually-hidden');
+    getInfoMessage('Input field is empty. Enter search query!');
+    return;
+  }
 
   fetchImagesByQuery(parametersRequest.searchQuery, parametersRequest.page)
     .then(data => {
@@ -97,8 +105,8 @@ function handlerSearch(evt) {
         );
 
         if (selectors.guardGallery.hidden === true) {
-            selectors.guardGallery.hidden = false;
-          }
+          selectors.guardGallery.hidden = false;
+        }
 
         observer.observe(selectors.guardGallery);
       } else {
@@ -122,52 +130,52 @@ function handlerSearch(evt) {
  * @param {Array} entries
  */
 export const handlerPagination = function handlerPagination(entries) {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        if (
-          isLastPage(
-            parametersRequest.totalHits,
-            parametersRequest.page,
-            parametersRequest.perPage
-          )
-        ) {
-          return;
-        }
-  
-        parametersRequest.page += 1;
-        selectors.loader.classList.add('loader-wrap-bottom');
-        selectors.loader.classList.remove('visually-hidden');
-  
-        fetchImagesByQuery(parametersRequest.searchQuery, parametersRequest.page)
-          .then(data => {
-            const { totalHits, hits } = data;
-  
-            if (hits.length > 0) {
-              selectors.gallery.insertAdjacentHTML(
-                'beforeend',
-                createMarkupGallery(hits)
-              );
-  
-              gallerySimpleLightbox.refresh();
-            } else {
-              getFailureMessage(
-                'Sorry, there are no images matching your search query. Please try again.'
-              );
-            }
-          })
-          .catch(err =>
-            getFailureMessage(`Oops! Something went wrong! Try reloading the page! 
-            (${err})`)
-          )
-          .finally(() => {
-            selectors.loader.classList.add('visually-hidden');
-            selectors.loader.classList.remove('loader-wrap-bottom');
-          });
-      } else {
-        closeMessageNotify('.notiflix-notify-info');
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      if (
+        isLastPage(
+          parametersRequest.totalHits,
+          parametersRequest.page,
+          parametersRequest.perPage
+        )
+      ) {
+        return;
       }
-    });
-  };
+
+      parametersRequest.page += 1;
+      selectors.loader.classList.add('loader-wrap-bottom');
+      selectors.loader.classList.remove('visually-hidden');
+
+      fetchImagesByQuery(parametersRequest.searchQuery, parametersRequest.page)
+        .then(data => {
+          const { totalHits, hits } = data;
+
+          if (hits.length > 0) {
+            selectors.gallery.insertAdjacentHTML(
+              'beforeend',
+              createMarkupGallery(hits)
+            );
+
+            gallerySimpleLightbox.refresh();
+          } else {
+            getFailureMessage(
+              'Sorry, there are no images matching your search query. Please try again.'
+            );
+          }
+        })
+        .catch(err =>
+          getFailureMessage(`Oops! Something went wrong! Try reloading the page! 
+            (${err})`)
+        )
+        .finally(() => {
+          selectors.loader.classList.add('visually-hidden');
+          selectors.loader.classList.remove('loader-wrap-bottom');
+        });
+    } else {
+      closeMessageNotify('.notiflix-notify-info');
+    }
+  });
+};
 
 /**
  * Розраховує загальну кількість сторінок та перевіряє, чи поточна сторінка є останнью.
@@ -178,13 +186,11 @@ export const handlerPagination = function handlerPagination(entries) {
  * @returns {Boolean} true
  */
 export const isLastPage = function isLastPage(totalItems, page, perPage) {
-    const totalPage = Math.ceil(totalItems / perPage);
-  
-    if (page >= totalPage) {
-      getInfoMessage(
-        "We're sorry, but you've reached the end of search results."
-      );
-  
-      return true;
-    }
-  };
+  const totalPage = Math.ceil(totalItems / perPage);
+
+  if (page >= totalPage) {
+    selectors.endGallery.classList.remove('visually-hidden');
+
+    return true;
+  }
+};

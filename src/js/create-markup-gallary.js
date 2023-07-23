@@ -30,16 +30,16 @@ export const createMarkupGallery = function createMarkupGallery(arr) {
         }) => `<li class="photo-card">
       <a href="${largeImageURL}" class="img-card"><img src="${webformatURL}" alt="${tags}" title="Tags: ${tags}" width="640" height="400" loading="lazy"/><div class="info">
       <p class="info-item">
-        <b>Likes: </b>${likes}
+        <span>Likes: </span>${likes}
       </p>
       <p class="info-item">
-        <b>Views: </b>${views}
+        <span>Views: </span>${views}
       </p>
       <p class="info-item">
-        <b>Comments: </b>${comments}
+        <span>Comments: </span>${comments}
       </p>
       <p class="info-item">
-        <b>Downloads: </b>${downloads}
+        <span>Downloads: </span>${downloads}
       </p>
     </div></a>
   </li>`

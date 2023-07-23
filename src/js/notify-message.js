@@ -28,16 +28,10 @@ export const getFailureMessage = function getFailureMessage(message) {
  * Показує Notify.info повідомлення із зазначеним текстом
  * @param {String} message
  */
-export const getInfoMessage = function getInfoMessage(
-  message,
-  position = 'center-bottom'
-) {
+export const getInfoMessage = function getInfoMessage(message) {
   const options = {
-    position: position,
-    cssAnimationStyle: 'from-bottom',
+    cssAnimationStyle: 'from-top',
   };
-
-  closeMessageNotify('.notiflix-notify-info');
 
   Notify.info(message, options);
 };
