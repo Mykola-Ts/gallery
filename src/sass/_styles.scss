@@ -45,6 +45,12 @@ body {
 
   color: #ffffff;
   background-color: transparent;
+
+  transition: transform var(--transition-duration) var(--transition-timing-function);
+}
+
+.home-btn:is(:hover, :focus){
+  background-color: rgba(63, 178, 255, 1);
 }
 
 .search-form {
