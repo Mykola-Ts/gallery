@@ -244,6 +244,10 @@ function handlerBackToHome() {
     selectors.categoriesWrap.classList.remove('visually-hidden');
   }
 
+  if (!selectors.endGallery.classList.contains('visually-hidden')) {
+    selectors.endGallery.classList.add('visually-hidden');
+  }
+
   selectors.gallery.innerHTML = '';
   selectors.galleryWrap.classList.add('visually-hidden');
   selectors.galleryWrap.style.marginTop = 0;
