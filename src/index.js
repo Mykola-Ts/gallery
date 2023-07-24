@@ -59,6 +59,7 @@ function handlerSearch(evt) {
   selectors.categoriesWrap.classList.add('visually-hidden');
   selectors.galleryTitle.textContent = '';
   selectors.galleryTitle.classList.add('visually-hidden');
+  selectors.galleryWrap.style.marginTop = 0;
   closeMessageNotify('#NotiflixNotifyWrap');
 
   parametersRequest.page = 1;
@@ -314,10 +315,12 @@ fetchImagesByCategory()
 
     getTopMargin(selectors.categoriesWrap);
   })
-  .catch(err =>
+  .catch(err => {
+    selectors.categoriesWrap.classList.add('visually-hidden');
+
     getFailureMessage(`Oops! Something went wrong! Try reloading the page!
-      (${err})`)
-  )
+      (${err})`);
+  })
   .finally(() => {
     selectors.loader.classList.add('visually-hidden');
     selectors.loader.classList.remove('loader-wrap-top');
