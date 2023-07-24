@@ -1,4 +1,6 @@
 <div class="search-wrap">
+  <button type="button" class="home-btn">Home</button>
+
   <form class="search-form" id="search-form">
     <input
       type="text"
@@ -11,6 +13,18 @@
   </form>
 </div>
 
-<ul class="gallery container"></ul>
+<div class="categories-wrap container visually-hidden">
+  <h2 class="title">Categories</h2>
+  <ul class="categories"></ul>
+</div>
+
+<div class="gallery-wrap container">
+  <h2 class="gallery-title title visually-hidden"></h2>
+  <ul class="gallery"></ul>
+</div>
+
 <div class="js-guard-gallery visually-hidden"></div>
-<p class="end-gallery visually-hidden">We're sorry, but you've reached the end of search results.</p>
+
+<p class="end-gallery visually-hidden">
+  We're sorry, but you've reached the end of search results.
+</p>

@@ -9,7 +9,7 @@ import { parametersRequest } from '../index';
  */
 export const fetchImagesByQuery = async function fetchImagesByQuery(
   query,
-  page
+  page = 1
 ) {
   const options = {
     BASE_URL: 'https://pixabay.com/api/',

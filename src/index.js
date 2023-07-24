@@ -21,6 +21,7 @@ export const selectors = {
   backToTopBtn: document.querySelector('.back-to-top-btn'),
   searchWrap: document.querySelector('.search-wrap'),
   endGallery: document.querySelector('.end-gallery'),
+  homeBtn: document.querySelector('.home-btn'),
 };
 export const parametersRequest = {
   searchQuery: '',
@@ -35,6 +36,12 @@ const optionsSimpleLightbox = {
   overlayOpacity: 0.9,
   loop: false,
 };
+const optionsObserver = {
+  root: null,
+  rootMargin: '600px',
+  threshold: 0,
+};
+const observer = new IntersectionObserver(handlerPagination, optionsObserver);
 
 selectors.searchForm.addEventListener('submit', handlerSearch);
 
@@ -49,6 +56,9 @@ selectors.backToTopBtn.addEventListener('click', scrollToTop);
 function handlerSearch(evt) {
   evt.preventDefault();
 
+  selectors.categoriesWrap.classList.add('visually-hidden');
+  selectors.galleryTitle.textContent = '';
+  selectors.galleryTitle.classList.add('visually-hidden');
   closeMessageNotify('#NotiflixNotifyWrap');
 
   parametersRequest.page = 1;
@@ -71,6 +81,7 @@ function handlerSearch(evt) {
 
   if (!parametersRequest.searchQuery) {
     selectors.loader.classList.add('visually-hidden');
+    selectors.categoriesWrap.classList.remove('visually-hidden');
     getInfoMessage('Input field is empty. Enter search query!');
     return;
   }
@@ -78,22 +89,17 @@ function handlerSearch(evt) {
   fetchImagesByQuery(parametersRequest.searchQuery, parametersRequest.page)
     .then(data => {
       const { totalHits, hits } = data;
-      const optionsObserver = {
-        root: null,
-        rootMargin: '600px',
-        threshold: 0,
-      };
-      const observer = new IntersectionObserver(
-        handlerPagination,
-        optionsObserver
-      );
 
       parametersRequest.totalHits = totalHits;
 
       if (hits.length > 0) {
         selectors.gallery.innerHTML = createMarkupGallery(hits);
 
-        getTopMargin();
+        if (selectors.galleryWrap.classList.contains('visually-hidden')) {
+          selectors.galleryWrap.classList.remove('visually-hidden');
+        }
+
+        getTopMargin(selectors.gallery);
 
         gallerySimpleLightbox = new SimpleLightbox(
           '.gallery a',
@@ -110,6 +116,8 @@ function handlerSearch(evt) {
 
         observer.observe(selectors.guardGallery);
       } else {
+        selectors.categoriesWrap.classList.remove('visually-hidden');
+
         getFailureMessage(
           'Sorry, there are no images matching your search query. Please try again.'
         );
@@ -129,7 +137,7 @@ function handlerSearch(evt) {
  * Нескінченне завантаження зображень під час прокручування сторінки
  * @param {Array} entries
  */
-export const handlerPagination = function handlerPagination(entries) {
+function handlerPagination(entries) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       if (
@@ -175,7 +183,7 @@ export const handlerPagination = function handlerPagination(entries) {
       closeMessageNotify('.notiflix-notify-info');
     }
   });
-};
+}
 
 /**
  * Розраховує загальну кількість сторінок та перевіряє, чи поточна сторінка є останнью.
@@ -194,3 +202,181 @@ export const isLastPage = function isLastPage(totalItems, page, perPage) {
     return true;
   }
 };
+
+// ------------------- Categories -------------------
+
+import axios from 'axios';
+
+selectors.categories = document.querySelector('.categories');
+selectors.categoriesWrap = document.querySelector('.categories-wrap');
+selectors.galleryWrap = document.querySelector('.gallery-wrap');
+selectors.galleryTitle = document.querySelector('.gallery-title');
+
+const arrCategories = [
+  'fashion',
+  'nature',
+  'science',
+  'education',
+  'health',
+  'people',
+  'places',
+  'animals',
+  'computer',
+  'food',
+  'sports',
+  'transportation',
+  'travel',
+  'buildings',
+  'business',
+  'music',
+];
+
+selectors.homeBtn.addEventListener('click', handlerBackToHome);
+
+function handlerBackToHome() {
+  scrollToTop();
+
+  selectors.searchQueryInput.value = '';
+
+  closeMessageNotify('#NotiflixNotifyWrap');
+
+  if (selectors.categoriesWrap.classList.contains('visually-hidden')) {
+    selectors.categoriesWrap.classList.remove('visually-hidden');
+  }
+
+  selectors.gallery.innerHTML = '';
+  selectors.galleryWrap.classList.add('visually-hidden');
+
+  observer.unobserve(selectors.guardGallery);
+}
+
+async function fetchImagesByCategory() {
+  const options = {
+    BASE_URL: 'https://pixabay.com/api/',
+    API_KEY: '38342834-eb43385299074b454791d917b',
+    imageType: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    perPage: 3,
+  };
+
+  const arrOfPromises = arrCategories.map(async category => {
+    const resp = await axios.get(
+      `${options.BASE_URL}?key=${options.API_KEY}&q=${category}&image_type=${options.imageType}&orientation=${options.orientation}&safesearch=${options.safesearch}&per_page=${options.perPage}`
+    );
+
+    if (resp.status !== 200) {
+      throw new Error(resp.statusText);
+    }
+
+    const data = await resp.data;
+
+    return data;
+  });
+
+  return await Promise.all(arrOfPromises);
+}
+
+function createMarkupCategories(arr) {
+  let idCategory = 0;
+
+  return arr
+    .map(({ hits }) => {
+      const markup = `<li class="photo-card"><img src="${
+        hits[Math.round(Math.random() * (0 - 2) + 2)].webformatURL
+      }" alt="" width="640" height="400" loading="lazy" class="img" data-name="${
+        arrCategories[idCategory]
+      }"/><h3 class="category-name" data-name="${arrCategories[idCategory]}">${
+        arrCategories[idCategory]
+      }</h3></li>`;
+
+      idCategory += 1;
+
+      return markup;
+    })
+    .join('');
+}
+
+fetchImagesByCategory()
+  .then(data => {
+    selectors.categories.innerHTML = createMarkupCategories(data);
+
+    if (selectors.galleryWrap.classList.contains('visually-hidden')) {
+      selectors.galleryWrap.classList.remove('visually-hidden');
+    }
+
+    selectors.categoriesWrap.classList.remove('visually-hidden');
+
+    getTopMargin(selectors.categoriesWrap);
+  })
+  .catch(err =>
+    getFailureMessage(`Oops! Something went wrong! Try reloading the page!
+      (${err})`)
+  )
+  .finally(() => {
+    selectors.loader.classList.add('visually-hidden');
+    selectors.loader.classList.remove('loader-wrap-top');
+  });
+
+selectors.categories.addEventListener('click', handlerSearchImagesByCategories);
+
+function handlerSearchImagesByCategories(evt) {
+  if (evt.target.classList.contains('categories')) {
+    return;
+  }
+
+  parametersRequest.searchQuery = evt.target.dataset.name;
+
+  fetchImagesByQuery(evt.target.dataset.name, parametersRequest.page)
+    .then(data => {
+      const { totalHits, hits } = data;
+
+      parametersRequest.totalHits = totalHits;
+
+      if (hits.length > 0) {
+        selectors.galleryTitle.textContent = evt.target.dataset.name;
+        selectors.gallery.innerHTML = createMarkupGallery(hits);
+        selectors.gallery.style.marginTop = 0;
+
+        if (selectors.galleryWrap.classList.contains('visually-hidden')) {
+          selectors.galleryWrap.classList.remove('visually-hidden');
+        }
+
+        getTopMargin(selectors.galleryWrap);
+
+        gallerySimpleLightbox = new SimpleLightbox(
+          '.gallery a',
+          optionsSimpleLightbox
+        );
+
+        selectors.galleryTitle.classList.remove('visually-hidden');
+
+        selectors.galleryWrap.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+
+        getSuccessMessage(
+          `Hooray! We found ${parametersRequest.totalHits} images.`
+        );
+
+        if (selectors.guardGallery.hidden === true) {
+          selectors.guardGallery.hidden = false;
+        }
+
+        observer.observe(selectors.guardGallery);
+      } else {
+        getFailureMessage(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      }
+    })
+    .catch(err =>
+      getFailureMessage(`Oops! Something went wrong! Try reloading the page!
+      (${err})`)
+    )
+    .finally(() => {
+      selectors.loader.classList.add('visually-hidden');
+      selectors.loader.classList.remove('loader-wrap-top');
+    });
+}

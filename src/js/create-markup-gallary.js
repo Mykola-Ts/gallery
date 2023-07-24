@@ -1,15 +1,16 @@
-import { selectors } from "../index";
+import { selectors } from '../index';
 
 /**
- * Розраховує margin-top для gallery на підставі розміру фіксованого на сторінці searchWrap
+ * Розраховує margin-top для вказаного елемента на підставі розміру фіксованого на сторінці searchWrap
+ * @param {HTMLUListElement} element
  */
-export const getTopMargin = function getTopMargin() {
+export const getTopMargin = function getTopMargin(element) {
   const { height } = selectors.searchWrap.getBoundingClientRect();
 
   const margin = Math.ceil(height) + 20;
 
-  selectors.gallery.style.marginTop = `${margin}px`;
-}
+  element.style.marginTop = `${margin}px`;
+};
 
 /**
  * Створює розмітку елементів галереї на підставі отриманого масиву даних
@@ -17,18 +18,18 @@ export const getTopMargin = function getTopMargin() {
  * @returns {String} Розмітка елементів галереї
  */
 export const createMarkupGallery = function createMarkupGallery(arr) {
-    return arr
-      .map(
-        ({
-          webformatURL,
-          largeImageURL,
-          tags,
-          likes,
-          views,
-          comments,
-          downloads,
-        }) => `<li class="photo-card">
-      <a href="${largeImageURL}" class="img-card"><img src="${webformatURL}" alt="${tags}" title="Tags: ${tags}" width="640" height="400" loading="lazy"/><div class="info">
+  return arr
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => `<li class="photo-card">
+      <a href="${largeImageURL}" class="img-card"><img src="${webformatURL}" alt="${tags}" title="Tags: ${tags}" width="640" height="400" loading="lazy" class="img"/><div class="info">
       <p class="info-item">
         <span>Likes: </span>${likes}
       </p>
@@ -43,6 +44,6 @@ export const createMarkupGallery = function createMarkupGallery(arr) {
       </p>
     </div></a>
   </li>`
-      )
-      .join('');
-  }
+    )
+    .join('');
+};
