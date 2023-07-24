@@ -114,10 +114,6 @@ body {
   width: 100%;
 }
 
-.categories {
-  cursor: pointer;
-}
-
 .title {
   margin-bottom: 20px;
 
@@ -140,6 +136,8 @@ body {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--box-shadow);
+
+  cursor: pointer;
 
   background-color: rgba(63, 178, 255, 0.1);
 
