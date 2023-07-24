@@ -246,6 +246,7 @@ function handlerBackToHome() {
 
   selectors.gallery.innerHTML = '';
   selectors.galleryWrap.classList.add('visually-hidden');
+  selectors.galleryWrap.style.marginTop = 0;
 
   observer.unobserve(selectors.guardGallery);
 }
