@@ -4,6 +4,12 @@
   --box-shadow: 0px 2px 1px rgba(46, 47, 66, 0.08),
     0px 1px 1px rgba(46, 47, 66, 0.16), 0px 1px 6px rgba(46, 47, 66, 0.08);
   --gap-gallery: 24px;
+  --primary-color: rgb(63, 178, 255);
+  --primary-color-with-transparency: rgba(63, 178, 255, 0.8);
+  --primary-color-transparent: rgba(63, 178, 255, 0.1);
+  --text-color: #141414;
+  --white-color: rgb(255, 255, 255);
+  --white-color-with-transparency: rgba(255, 255, 255, 0.8);
 }
 
 body {
@@ -13,13 +19,12 @@ body {
   line-height: 1.29;
   letter-spacing: -0.02em;
 
-  color: #141414;
+  color: var(--text-color);
 }
 
 .container {
   width: 100%;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 20px;
 }
 
 .search-wrap {
@@ -34,23 +39,24 @@ body {
 
   width: 100%;
 
-  background-color: rgba(63, 178, 255, 0.8);
+  background-color: var(--primary-color-with-transparency);
 }
 
 .home-btn {
   padding: 20px 24px;
   border: none;
-  border-left: 2px solid #ffffff;
-  border-right: 2px solid #ffffff;
+  border-left: 2px solid var(--white-color);
+  border-right: 2px solid var(--white-color);
 
-  color: #ffffff;
+  color: var(--white-color);
   background-color: transparent;
 
-  transition: transform var(--transition-duration) var(--transition-timing-function);
+  transition: transform var(--transition-duration)
+    var(--transition-timing-function);
 }
 
-.home-btn:is(:hover, :focus){
-  background-color: rgba(63, 178, 255, 1);
+.home-btn:is(:hover, :focus) {
+  background-color: var(--primary-color);
 }
 
 .search-form {
@@ -69,7 +75,7 @@ body {
   border-radius: 8px;
   margin-right: 20px;
 
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--white-color-with-transparency);
   outline: 2px solid transparent;
 
   transition: background-color var(--transition-duration)
@@ -79,9 +85,9 @@ body {
 }
 
 .search-form-input:focus {
-  background-color: #ffffff;
-  border-color: rgba(63, 178, 255, 1);
-  outline-color: #ffffff;
+  background-color: var(--white-color);
+  border-color: var(--primary-color);
+  outline-color: var(--white-color);
 }
 
 .search-form-btn {
@@ -90,7 +96,7 @@ body {
   border: 2px solid transparent;
   border-radius: 8px;
 
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--white-color-with-transparency);
   outline: 2px solid transparent;
 
   transition: background-color var(--transition-duration)
@@ -100,9 +106,9 @@ body {
 }
 
 .search-form-btn:is(:hover, :focus) {
-  background-color: #ffffff;
-  border-color: rgba(63, 178, 255, 1);
-  outline-color: #ffffff;
+  background-color: var(--white-color);
+  border-color: var(--primary-color);
+  outline-color: var(--white-color);
 }
 
 .gallery,
@@ -139,7 +145,7 @@ body {
 
   cursor: pointer;
 
-  background-color: rgba(63, 178, 255, 0.1);
+  background-color: var(--primary-color-transparent);
 
   transition: transform var(--transition-duration)
     var(--transition-timing-function);
@@ -182,7 +188,7 @@ body {
   gap: 8px;
 
   padding: 12px 8px;
-  border: 2px solid rgba(63, 178, 255, 0.8);
+  border: 2px solid var(--primary-color-with-transparency);
   border-top: none;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
@@ -246,16 +252,17 @@ body {
 
   color: rgba(0, 0, 0, 0.3);
   background-color: #ebedf0;
+  outline: transparent;
 
   transition: background-color var(--transition-duration)
     var(--transition-timing-function);
 }
 
-.back-to-top-btn:hover {
+.back-to-top-btn:is(:hover, :focus) {
   background-color: #ccd0d5;
 }
 
-.back-to-top-btn:hover .icon-top {
+.back-to-top-btn:is(:hover, :focus) .icon-top {
   transform: scale(1.2);
 }
 

@@ -1,4 +1,4 @@
-import { selectors } from '../index';
+import { selectors, arrCategories } from '../index';
 
 /**
  * Розраховує margin-top для вказаного елемента на підставі розміру фіксованого на сторінці searchWrap
@@ -7,7 +7,7 @@ import { selectors } from '../index';
 export const getTopMargin = function getTopMargin(element) {
   const { height } = selectors.searchWrap.getBoundingClientRect();
 
-  const margin = Math.ceil(height) + 20;
+  const margin = Math.ceil(height);
 
   element.style.marginTop = `${margin}px`;
 };
@@ -45,5 +45,30 @@ export const createMarkupGallery = function createMarkupGallery(arr) {
     </div></a>
   </li>`
     )
+    .join('');
+};
+
+/**
+ * Створює розмітку елементів списку категорій на підставі отриманого масиву даних
+ * @param {Array} arr
+ * @returns {String} Розмітка елементів списку категорій
+ */
+export const createMarkupCategories = function createMarkupCategories(arr) {
+  let idCategory = 0;
+
+  return arr
+    .map(({value:{ hits }} = category) => {
+      const markup = `<li class="photo-card"><img src="${
+        hits[Math.round(Math.random() * (0 - 2) + 2)].webformatURL
+      }" alt="" width="640" height="400" loading="lazy" class="img" data-name="${
+        arrCategories[idCategory]
+      }"/><h3 class="category-name" data-name="${arrCategories[idCategory]}">${
+        arrCategories[idCategory]
+      }</h3></li>`;
+
+      idCategory += 1;
+
+      return markup;
+    })
     .join('');
 };

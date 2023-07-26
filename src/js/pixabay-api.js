@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { parametersRequest } from '../index';
+import { parametersRequest, arrCategories } from '../index';
 
 /**
  * Виконує HTTP-запит за пошуковим значенням і повертає проміс із об'єктом даних
@@ -12,8 +12,6 @@ export const fetchImagesByQuery = async function fetchImagesByQuery(
   page = 1
 ) {
   const options = {
-    BASE_URL: 'https://pixabay.com/api/',
-    API_KEY: '38342834-eb43385299074b454791d917b',
     q: query,
     imageType: 'photo',
     orientation: 'horizontal',
@@ -23,14 +21,46 @@ export const fetchImagesByQuery = async function fetchImagesByQuery(
   };
 
   const resp = await axios.get(
-    `${options.BASE_URL}?key=${options.API_KEY}&q=${options.q}&image_type=${options.imageType}&orientation=${options.orientation}&safesearch=${options.safesearch}&page=${options.page}&per_page=${options.perPage}`
+    `${parametersRequest.BASE_URL}?key=${parametersRequest.API_KEY}&q=${options.q}&image_type=${options.imageType}&orientation=${options.orientation}&safesearch=${options.safesearch}&page=${options.page}&per_page=${options.perPage}`
   );
 
   if (resp.status !== 200) {
     throw new Error(resp.statusText);
   }
 
-  const data = await resp.data;
+  return await resp.data;
+};
+
+/**
+ * Виконує HTTP-запити за значеннями масиву категорій та повертає проміс із масивом об'єктів
+ * @returns {Promise} Проміс із масивом об'єктів
+ */
+export const fetchImagesByCategory = async function fetchImagesByCategory() {
+  const options = {
+    imageType: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    perPage: 3,
+  };
+  const arrOfPromises = arrCategories.map(async category => {
+    const resp = await axios.get(
+      `${parametersRequest.BASE_URL}?key=${parametersRequest.API_KEY}&q=${category}&image_type=${options.imageType}&orientation=${options.orientation}&safesearch=${options.safesearch}&per_page=${options.perPage}`
+    );
+
+    if (resp.status !== 200) {
+      throw new Error(resp.statusText);
+    }
+
+    return await resp.data;
+  });
+
+  const data = (await Promise.allSettled(arrOfPromises)).filter(
+    ({ status }) => status === 'fulfilled'
+  );
+
+  if (!data.length) {
+    throw new Error(resp.statusText);
+  }
 
   return data;
 };

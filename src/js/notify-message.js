@@ -7,6 +7,8 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 export const getSuccessMessage = function getSuccessMessage(message) {
   const options = { cssAnimationStyle: 'from-top' };
 
+  closeMessageNotify('#NotiflixNotifyWrap');
+
   Notify.success(message, options);
 };
 
@@ -21,6 +23,8 @@ export const getFailureMessage = function getFailureMessage(message) {
     messageMaxLength: 150,
   };
 
+  closeMessageNotify('#NotiflixNotifyWrap');
+
   Notify.failure(message, options);
 };
 
@@ -32,6 +36,8 @@ export const getInfoMessage = function getInfoMessage(message) {
   const options = {
     cssAnimationStyle: 'from-top',
   };
+
+  closeMessageNotify('#NotiflixNotifyWrap');
 
   Notify.info(message, options);
 };

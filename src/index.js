@@ -1,16 +1,19 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { fetchImagesByQuery } from './js/pixabay-api';
-import { createMarkupGallery } from './js/create-markup-gallary';
-import { getTopMargin } from './js/create-markup-gallary';
-import { showBackToTopBtn } from './js/scroll-to-top';
-import { scrollToTop } from './js/scroll-to-top';
+import { fetchImagesByQuery, fetchImagesByCategory } from './js/pixabay-api';
+import {
+  createMarkupGallery,
+  getTopMargin,
+  createMarkupCategories,
+} from './js/create-markup';
+import { showBackToTopBtn, scrollToTop } from './js/scroll-to-top';
 import {
   getInfoMessage,
   getSuccessMessage,
   getFailureMessage,
   closeMessageNotify,
 } from './js/notify-message';
+import { handlerBackToHome } from './js/back-to-home';
 
 export const selectors = {
   searchForm: document.querySelector('#search-form'),
@@ -22,8 +25,14 @@ export const selectors = {
   searchWrap: document.querySelector('.search-wrap'),
   endGallery: document.querySelector('.end-gallery'),
   homeBtn: document.querySelector('.home-btn'),
+  categories: document.querySelector('.categories'),
+  categoriesWrap: document.querySelector('.categories-wrap'),
+  galleryWrap: document.querySelector('.gallery-wrap'),
+  galleryTitle: document.querySelector('.gallery-title'),
 };
 export const parametersRequest = {
+  BASE_URL: 'https://pixabay.com/api/',
+  API_KEY: '38342834-eb43385299074b454791d917b',
   searchQuery: '',
   page: 1,
   perPage: 40,
@@ -41,7 +50,10 @@ const optionsObserver = {
   rootMargin: '600px',
   threshold: 0,
 };
-const observer = new IntersectionObserver(handlerPagination, optionsObserver);
+export const observer = new IntersectionObserver(
+  handlerPagination,
+  optionsObserver
+);
 
 selectors.searchForm.addEventListener('submit', handlerSearch);
 
@@ -56,14 +68,6 @@ selectors.backToTopBtn.addEventListener('click', scrollToTop);
 function handlerSearch(evt) {
   evt.preventDefault();
 
-  selectors.categoriesWrap.classList.add('visually-hidden');
-  selectors.galleryTitle.textContent = '';
-  selectors.galleryTitle.classList.add('visually-hidden');
-  selectors.galleryWrap.style.marginTop = 0;
-  closeMessageNotify('#NotiflixNotifyWrap');
-
-  parametersRequest.page = 1;
-
   if (selectors.guardGallery.hidden === false) {
     selectors.guardGallery.hidden = true;
   }
@@ -72,18 +76,29 @@ function handlerSearch(evt) {
     selectors.endGallery.classList.add('visually-hidden');
   }
 
-  selectors.gallery.innerHTML = '';
-
+  selectors.categoriesWrap.classList.add('visually-hidden');
+  selectors.galleryTitle.classList.add('visually-hidden');
   selectors.loader.classList.add('loader-wrap-top');
   selectors.loader.classList.remove('visually-hidden');
 
-  parametersRequest.searchQuery =
-    selectors.searchQueryInput.value.toLowerCase();
+  selectors.gallery.innerHTML = '';
+  selectors.galleryTitle.textContent = '';
+  selectors.galleryWrap.style.marginTop = 0;
+
+  closeMessageNotify('#NotiflixNotifyWrap');
+
+  parametersRequest.page = 1;
+
+  parametersRequest.searchQuery = selectors.searchQueryInput.value
+    .toLowerCase()
+    .trim();
 
   if (!parametersRequest.searchQuery) {
     selectors.loader.classList.add('visually-hidden');
     selectors.categoriesWrap.classList.remove('visually-hidden');
+
     getInfoMessage('Input field is empty. Enter search query!');
+
     return;
   }
 
@@ -125,7 +140,7 @@ function handlerSearch(evt) {
       }
     })
     .catch(err =>
-      getFailureMessage(`Oops! Something went wrong! Try reloading the page!
+      getFailureMessage(`Oops! Something went wrong! Try reloading the page!<br/>
       (${err})`)
     )
     .finally(() => {
@@ -140,49 +155,50 @@ function handlerSearch(evt) {
  */
 function handlerPagination(entries) {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      if (
-        isLastPage(
-          parametersRequest.totalHits,
-          parametersRequest.page,
-          parametersRequest.perPage
-        )
-      ) {
-        return;
-      }
-
-      parametersRequest.page += 1;
-      selectors.loader.classList.add('loader-wrap-bottom');
-      selectors.loader.classList.remove('visually-hidden');
-
-      fetchImagesByQuery(parametersRequest.searchQuery, parametersRequest.page)
-        .then(data => {
-          const { totalHits, hits } = data;
-
-          if (hits.length > 0) {
-            selectors.gallery.insertAdjacentHTML(
-              'beforeend',
-              createMarkupGallery(hits)
-            );
-
-            gallerySimpleLightbox.refresh();
-          } else {
-            getFailureMessage(
-              'Sorry, there are no images matching your search query. Please try again.'
-            );
-          }
-        })
-        .catch(err =>
-          getFailureMessage(`Oops! Something went wrong! Try reloading the page! 
-            (${err})`)
-        )
-        .finally(() => {
-          selectors.loader.classList.add('visually-hidden');
-          selectors.loader.classList.remove('loader-wrap-bottom');
-        });
-    } else {
-      closeMessageNotify('.notiflix-notify-info');
+    if (!entry.isIntersecting) {
+      return;
     }
+
+    if (
+      isLastPage(
+        parametersRequest.totalHits,
+        parametersRequest.page,
+        parametersRequest.perPage
+      )
+    ) {
+      return;
+    }
+
+    selectors.loader.classList.add('loader-wrap-bottom');
+    selectors.loader.classList.remove('visually-hidden');
+
+    parametersRequest.page += 1;
+
+    fetchImagesByQuery(parametersRequest.searchQuery, parametersRequest.page)
+      .then(data => {
+        const { totalHits, hits } = data;
+
+        if (hits.length > 0) {
+          selectors.gallery.insertAdjacentHTML(
+            'beforeend',
+            createMarkupGallery(hits)
+          );
+
+          gallerySimpleLightbox.refresh();
+        } else {
+          getFailureMessage(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
+        }
+      })
+      .catch(err =>
+        getFailureMessage(`Oops! Something went wrong! Try reloading the page! 
+            (${err})`)
+      )
+      .finally(() => {
+        selectors.loader.classList.add('visually-hidden');
+        selectors.loader.classList.remove('loader-wrap-bottom');
+      });
   });
 }
 
@@ -206,14 +222,7 @@ export const isLastPage = function isLastPage(totalItems, page, perPage) {
 
 // ------------------- Categories -------------------
 
-import axios from 'axios';
-
-selectors.categories = document.querySelector('.categories');
-selectors.categoriesWrap = document.querySelector('.categories-wrap');
-selectors.galleryWrap = document.querySelector('.gallery-wrap');
-selectors.galleryTitle = document.querySelector('.gallery-title');
-
-const arrCategories = [
+export const arrCategories = [
   'fashion',
   'nature',
   'science',
@@ -233,75 +242,6 @@ const arrCategories = [
 ];
 
 selectors.homeBtn.addEventListener('click', handlerBackToHome);
-
-function handlerBackToHome() {
-  scrollToTop();
-
-  selectors.searchQueryInput.value = '';
-
-  closeMessageNotify('#NotiflixNotifyWrap');
-
-  if (selectors.categoriesWrap.classList.contains('visually-hidden')) {
-    selectors.categoriesWrap.classList.remove('visually-hidden');
-  }
-
-  if (!selectors.endGallery.classList.contains('visually-hidden')) {
-    selectors.endGallery.classList.add('visually-hidden');
-  }
-
-  selectors.gallery.innerHTML = '';
-  selectors.galleryWrap.classList.add('visually-hidden');
-  selectors.galleryWrap.style.marginTop = 0;
-
-  observer.unobserve(selectors.guardGallery);
-}
-
-async function fetchImagesByCategory() {
-  const options = {
-    BASE_URL: 'https://pixabay.com/api/',
-    API_KEY: '38342834-eb43385299074b454791d917b',
-    imageType: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    perPage: 3,
-  };
-
-  const arrOfPromises = arrCategories.map(async category => {
-    const resp = await axios.get(
-      `${options.BASE_URL}?key=${options.API_KEY}&q=${category}&image_type=${options.imageType}&orientation=${options.orientation}&safesearch=${options.safesearch}&per_page=${options.perPage}`
-    );
-
-    if (resp.status !== 200) {
-      throw new Error(resp.statusText);
-    }
-
-    const data = await resp.data;
-
-    return data;
-  });
-
-  return await Promise.all(arrOfPromises);
-}
-
-function createMarkupCategories(arr) {
-  let idCategory = 0;
-
-  return arr
-    .map(({ hits }) => {
-      const markup = `<li class="photo-card"><img src="${
-        hits[Math.round(Math.random() * (0 - 2) + 2)].webformatURL
-      }" alt="" width="640" height="400" loading="lazy" class="img" data-name="${
-        arrCategories[idCategory]
-      }"/><h3 class="category-name" data-name="${arrCategories[idCategory]}">${
-        arrCategories[idCategory]
-      }</h3></li>`;
-
-      idCategory += 1;
-
-      return markup;
-    })
-    .join('');
-}
 
 fetchImagesByCategory()
   .then(data => {
@@ -326,9 +266,13 @@ fetchImagesByCategory()
     selectors.loader.classList.remove('loader-wrap-top');
   });
 
-selectors.categories.addEventListener('click', handlerSearchImagesByCategories);
+selectors.categories.addEventListener('click', handlerSearchImagesByCategory);
 
-function handlerSearchImagesByCategories(evt) {
+/**
+ * Пошук зображень на Pixabay API за обраною зі списку категорією та іх перегляд
+ * @param {PointerEvent} evt
+ */
+function handlerSearchImagesByCategory(evt) {
   if (evt.target.classList.contains('categories')) {
     return;
   }
