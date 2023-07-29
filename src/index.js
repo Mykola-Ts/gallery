@@ -225,20 +225,20 @@ export const isLastPage = function isLastPage(totalItems, page, perPage) {
 export const arrCategories = [
   'fashion',
   'nature',
-  'science',
+  'animals',
+  'sports',
   'education',
+  'travel',
+  'transportation',
   'health',
   'people',
   'places',
-  'animals',
-  'computer',
   'food',
-  'sports',
-  'transportation',
-  'travel',
+  'computer',
+  'science',
+  'music',
   'buildings',
   'business',
-  'music',
 ];
 
 selectors.homeBtn.addEventListener('click', handlerBackToHome);
