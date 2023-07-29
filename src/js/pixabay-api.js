@@ -28,7 +28,7 @@ export const fetchImagesByQuery = async function fetchImagesByQuery(
     throw new Error(resp.statusText);
   }
 
-  return await resp.data;
+  return resp.data;
 };
 
 /**
@@ -51,7 +51,7 @@ export const fetchImagesByCategory = async function fetchImagesByCategory() {
       throw new Error(resp.statusText);
     }
 
-    return await resp.data;
+    return resp.data;
   });
 
   const data = (await Promise.allSettled(arrOfPromises)).filter(
